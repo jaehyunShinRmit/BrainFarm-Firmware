@@ -15,6 +15,7 @@
 
 #include "KCodeHandler.h"
 #include "K11Handler.h"
+#include "K12Handler.h"
 #include "K51Handler.h"
 #include "K61Handler.h"
 #include "K62Handler.h"

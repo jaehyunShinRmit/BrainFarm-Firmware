@@ -40,6 +40,7 @@
 //#include "GCodeProcessor.h" //need to uncomment it to use Gcode
 #include "KCodeProcessor.h"
 #include "TimerOne.h"
+#include "TimerThree.h"
 #include "pins.h"
 #include "Config.h"
 #include "MemoryFree.h"
@@ -110,9 +111,9 @@ TinyGPSPlus tinyGPS; // tinyGPSPlus object to be used throughout
 #define gpsPort Serial1  // Alternatively, use Serial1 on the Leonardo
 // Keep in mind, the SD library has max file name lengths of 8.3 - 8 char prefix,
 // and a 3 char suffix.
-// Our log files are called "gpslogXX.csv, so "gpslog99.csv" is our max file.
+// Our log files are called "logXX.csv, so "gpslog99.csv" is our max file.
 #define ARDUINO_USD_CS 10 // uSD card CS pin (pin 10 on SparkFun GPS Logger Shield)
-#define LOG_FILE_PREFIX "imulog" // Name of the log file.
+#define LOG_FILE_PREFIX "log" // Name of the log file.
 #define MAX_LOG_FILES 100 // Number of log files that can be made
 #define LOG_FILE_SUFFIX "csv" // Suffix of the log file
 #define LOG_COLUMN_COUNT 14
@@ -122,15 +123,24 @@ char logFileName[13]; // Char string to store the log file name
 char * log_col_names[LOG_COLUMN_COUNT] = {
   "ms", "E(mm)", "N(mm)", "V(mm/s)","P(rad)","DP(rad/s)", "A(mm/s^2)","Heading(IMU)","roll(deg)", "pitch(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
 }; // log_col_names is printed at the top of the file.
+char * log_col_names_raw[LOG_COLUMN_COUNT] = {
+  "ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","Roll(deg)","pitch(deg)", "heading(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+}; // log_col_names is printed at the top of the file.
 
+bool oneshot = false;
 /////////////////////////////////
-// Motor Driver                //
+// Motor       //
+//Arduino Mega	USE TIMER1 for PWM 11, 12, 13	
+//                  TIMER3 for PWM 2, 3, 5
+//So we use PWM 6,7 to control motor 
+//Since we use Interrupt routine with TIMER1 and TIMER3
 /////////////////////////////////
-int E1 = 5;     //M1 Speed Control
-int E2 = 6;     //M2 Speed Control
-int M1 = 4;     //M1 Direction Control
-int M2 = 7;     //M1 Direction Control
-int counter = 0;
+const int PIN_LEFTRIGHT_JOYSTICK  = 6;     //M1 
+const int PIN_FORNTBACK_JOYSTICK  = 7;     //M2 
+const int Stop       = 131;
+int Positive         = 220;
+int Negative         = 70;
+int counter          = 0;
 
 //////////////////////
 // Log Rate Control //
@@ -142,8 +152,8 @@ unsigned long lastLog = 0; // Global var to keep of last time we logged
 ////////////////////////////
 //#define PRINT_CALCULATED
 #define SENSORUPDATE_SPEED 50  // 50ms -> 20hz update rate
-#define MAXINDEXUIO 10*300  // 300s
-#define MAXINDEXURL 10*300  // 300s
+#define MAXINDEXUIO 10*300     // 300s
+#define MAXINDEXURL 10*300     // 300s
 
 
 bool interruptBusy = false;
@@ -165,7 +175,11 @@ void interrupt(void) {
         Bot.latitude  = (double)tinyGPS.location.lat();
         Bot.longitude = (double)tinyGPS.location.lng();
         Bot.speed = (double)(tinyGPS.speed.mph());
-        Serial.println(Bot.ax);
+        // Logging Raw data 
+        if(KCurrentState::getInstance()->getisRawdataLogging()){
+          logRawData();
+        }
+        // Running Kalman filtering - Absolute Optimization
         if (KCurrentState::getInstance()->getisKalmanFiltering()) {
           measurement[2] = (double)Bot.heading;
           measurement[3] = (double)Bot.gz;
@@ -205,12 +219,11 @@ void interrupt(void) {
             measurement[0] = GE;
             measurement[1] = GN;
           }
-
           if(LOGGING){
            logFarmbot();
-          } 
+          }
         }
-
+        ////Updating Robot Oriantation
         if (KCurrentState::getInstance()->getisUpdatingInitialOrientation()) {
           int indexUIO = 0;
           if (indexUIO++ < MAXINDEXUIO) {
@@ -224,7 +237,8 @@ void interrupt(void) {
             KCurrentState::getInstance()->setInitHeading(Bot.initHeading);
           }
         }
-        if (KCurrentState::getInstance()->getisUpdatingReferenceLocation()) {
+        ////Updating Reference Location
+        if (KCurrentState::getInstance()->getisUpdatingReferenceLocation()) { 
           int indexURL = 0;
           if (indexURL++ < MAXINDEXURL) {
             InitialGPSUpdate(indexURL);
@@ -236,7 +250,8 @@ void interrupt(void) {
             KCurrentState::getInstance()->setInitLon(Bot.initLon);
           }
         }
-        if (KCurrentState::getInstance()->getisInitKalman()){
+        //Initialize Kalmanfilter modelr. Updating Q,R
+        if (KCurrentState::getInstance()->getisInitKalman()){ 
           KCurrentState::getInstance()->setisInitKalman(false);
           ekf.InitP();
           if(KCurrentState::getInstance()->getisUpdatingQ()){
@@ -247,13 +262,37 @@ void interrupt(void) {
           }
         }
           
-        stateupdate();        
+        stateupdate();
       }
       interruptBusy = false;
     }
   }
 }
+bool interrupt3Busy = false;
+int interrupt3SecondTimer = 0;
+int movingTimer = 0;
+void interrupt_motor(void) {
 
+  
+  if (interrupt3Busy == false) {
+    interrupt3Busy = true;
+    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < 20){
+         movingTimer++;
+         motoradvance();       //Move forward
+         Serial.println("Advancing");
+    }
+    else{
+        movingTimer=0;
+        motorstop();
+        KCurrentState::getInstance()->setisAdvencing(false);
+    }
+      //back_off ()          //Move backward
+      //turn_L ()            //Turn Left
+      //turn_R ()            //Turn Right
+      
+    interrupt3Busy = false;
+  }
+}
 void setup()
 {
 
@@ -287,21 +326,16 @@ void setup()
   Timer1.initialize(MOVEMENT_INTERRUPT_SPEED);
   Timer1.start();
 
-  /*
-    // Motor Driver setup
-    int i;
-    for (i = 4; i <= 7; i++)
-    pinMode(i, OUTPUT);
-    digitalWrite(E1, LOW);
-    digitalWrite(E2, LOW);
-    pinMode(2, INPUT);
-    pinMode(3, INPUT);
-  */
+  Timer3.attachInterrupt(interrupt_motor);
+  Timer3.initialize(100000); //0.1 seconds == 100000microseconds
+  Timer3.start();
+
   // Initialize the inactivity check
   lastAction = millis();
   Serial.print("R99 ARDUINO STARTUP COMPLETE\r\n");
 
-
+  pinMode(PIN_LEFTRIGHT_JOYSTICK, OUTPUT);
+  pinMode(PIN_FORNTBACK_JOYSTICK, OUTPUT);
 }
 
 
@@ -309,98 +343,22 @@ void setup()
 
 void loop()
 {
-  /*
-    int i;
-    if ((lastLog + SENSORUPDATE_SPEED) <= millis())// If it's been LOG_RATE milliseconds since the last log:
-    {
-    switch (farmbotStatus) {
-      case SENSOR_INITIALIZATION:
-        //   Serial.println("Sensor initializing.");
-        if (gpsPort.available()) // When GPS start available go to the next step
-          farmbotStatus = ROBOT_INITIAL_ORIANTATION;
-        break;
-      case ROBOT_INITIAL_ORIANTATION:
-        //    Serial.println("Calculating Initial Oriantation - start.");
-        if (MAXINDEX_INITIAL_ORIANTATION > iInitialOriantation++)
-        {
-          //            Serial.print("Initial - Orientation: ");
-          //            Serial.print(Bot.heading_deg);
-          //            Serial.print(" ");
-          //            Serial.print(Bot.pitch_deg);
-          //            Serial.print(" ");
-          //            Serial.println(Bot.roll_deg);
-          // Calculate initial oriatation by averaging IMU and GPS
-          // recusrive mean calculation
-          InitialOriantationUpdate(iInitialOriantation);
-
-        }
-        else {
-          Serial.println("Calculating Initial Oriantation - completed.");
-          Serial.print("Initial - Orientation: ");
-          Serial.print(Bot.initHeading);
-          Serial.print(" ");
-          Serial.print(Bot.initPitch);
-          Serial.print(" ");
-          Serial.println(Bot.initRoll);
-          // After calculting initial oriantation move the next step
-          farmbotStatus = ADVANCE;
-          iInitialOriantation = 0;
-          iInitialGPS = 0;
-        }
-        break;
-      case ADVANCE:
-        Serial.println("GO!!");
-        if (MAXINDEX_ADVANCE > iAdvance++)
-        {
-          motoradvance (255, 255);  //move forward in max speed
-          logFarmbot();
-        }
-        else {
-          farmbotStatus = COLLECTING_DATA;
-          iAdvance = 0;
-        }
-        break;
-      case COLLECTING_DATA:
-        Serial.println("Stop!!");
-        if (MAXINDEX_COLLECTING > iCollecting++)
-        {
-          motorstop();
-        }
-        else {
-          farmbotStatus = WEEDING;
-          iCollecting = 0;
-        }
-        break;
-      case WEEDING:
-        // weeding task
-        // need to code
-        File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
-
-        logFile.print(Bot.initHeading, 6);
-        logFile.print(',');
-        logFile.print(Bot.initPitch, 6);
-        logFile.print(',');
-        logFile.print(Bot.initRoll, 1);
-        logFile.println();
-        logFile.close();
-        break;
-    }
-    lastLog = millis(); // Update the lastLog variable
-    }
-    // If we're not logging, continue to "feed" the tinyGPS object:
-    while (gpsPort.available())
-    tinyGPS.encode(gpsPort.read());
-  */
   // Updating IMU sensor  
   if ((lastPrint + SENSORUPDATE_SPEED) < millis()){
     updateFarmbot();
     lastPrint = millis(); // Update lastPrint time
   }
-  //continue to "feed" the tinyGPS object:
+  // Report GPS connection 
+  if(tinyGPS.location.isUpdated() && oneshot)
+  {
+    Serial.print("GPS connected\r\n");
+    oneshot = false;
+  }
+  // Continue to "feed" the tinyGPS object:
   while (gpsPort.available())
     tinyGPS.encode(gpsPort.read());
   
-  //waitng command from Raspberry PI
+  //waitng command from Raspberry PI/Laptop
   if (Serial.available()) {
 
     // Save current time stamp for timeout actions
@@ -414,7 +372,6 @@ void loop()
     {
       incomingCommandArray[incomingCommandPointer] = incomingChar;
       incomingCommandPointer++;
-
     }
     else
     {
@@ -474,7 +431,6 @@ void loop()
       incomingCommandPointer = 0;
     }
   }
-
 }
 
 void updateFarmbot()
@@ -511,7 +467,7 @@ void updateFarmbot()
 
   Bot.ax = (Ax * 9.81); // converting m/s^2
   Bot.ay = (Ay * 9.81); // converting m/s^2
-  Bot.az = (Az * 9.81); // converting mm/s^2
+  Bot.az = (Az * 9.81); // converting m/s^2
   Bot.gx =  imu.calcGyro(imu.gx);
   Bot.gy =  imu.calcGyro(imu.gy);
   Bot.gz =  imu.calcGyro(imu.gz);
@@ -593,6 +549,49 @@ int updateIMU(){
     imu.readMag();
   }
 }
+byte logRawData(){
+  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
+  if (logFile)
+  {
+    logFile.print(millis(), 5);
+    logFile.print(',');
+    logFile.print(Bot.ax, 5);
+    logFile.print(',');
+    logFile.print(Bot.ay, 5);
+    logFile.print(',');
+    logFile.print(Bot.az, 5);
+    logFile.print(',');
+    logFile.print(Bot.gx, 5);
+    logFile.print(',');
+    logFile.print(Bot.gy, 5);
+    logFile.print(',');
+    logFile.print(Bot.gz, 5);
+    logFile.print(',');
+    logFile.print(Bot.roll_deg, 5);
+    logFile.print(',');
+    logFile.print(Bot.pitch_deg, 5);
+    logFile.print(',');
+    logFile.print(Bot.heading_deg, 5);
+    logFile.print(',');
+    logFile.print(tinyGPS.location.lng(), 6);
+    logFile.print(',');
+    logFile.print(tinyGPS.location.lat(), 6);
+    logFile.print(',');
+    logFile.print(tinyGPS.speed.mph(), 2);
+    logFile.print(',');
+    logFile.print(tinyGPS.course.deg(),2);
+    logFile.println();
+    logFile.close();
+
+    return 1; // Return success
+  }
+  else{
+    Serial.print("The log file has been open - please check the SD card\r\n");
+    KCurrentState::getInstance()->setisRawdataLogging(false);
+  }
+  return 0; // If we failed to open the file, return fail
+}
+
 byte logFarmbot(){
   File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
   if (logFile)
@@ -674,30 +673,28 @@ void updateFileName(){
 
 void motorstop(void)                    //Stop
 {
-  digitalWrite(E1, 0);
-  digitalWrite(M1, LOW);
-  digitalWrite(E2, 0);
-  digitalWrite(M2, LOW);
+  analogWrite(PIN_LEFTRIGHT_JOYSTICK, Stop);
+  analogWrite(PIN_FORNTBACK_JOYSTICK, Stop);
 }
-void motoradvance(char a, char b)         //Move forward
+void motoradvance()       //Move forward
 {
-  analogWrite (E1, a);     //PWM Speed Control
-  digitalWrite(M1, HIGH);
+  analogWrite(PIN_LEFTRIGHT_JOYSTICK, Stop);
+  analogWrite(PIN_FORNTBACK_JOYSTICK, Positive);
 }
-void back_off (char a, char b)         //Move backward
+void back_off ()          //Move backward
 {
-  analogWrite (E1, a);
-  digitalWrite(M1, LOW);
+  analogWrite(PIN_LEFTRIGHT_JOYSTICK, Stop);
+  analogWrite(PIN_FORNTBACK_JOYSTICK, Negative);
 }
-void turn_L (char a, char b)            //Turn Left
+void turn_L ()            //Turn Left
 {
-  analogWrite (E2, b);
-  digitalWrite(M2, HIGH);
+  analogWrite(PIN_LEFTRIGHT_JOYSTICK, Negative);
+  analogWrite(PIN_FORNTBACK_JOYSTICK, Stop);
 }
-void turn_R (char a, char b)            //Turn Right
+void turn_R ()            //Turn Right
 {
-  analogWrite (E2, b);
-  digitalWrite(M2, LOW);
+  analogWrite(PIN_LEFTRIGHT_JOYSTICK, Positive);
+  analogWrite(PIN_FORNTBACK_JOYSTICK, Stop);
 }
 
 void stateupdate(void) {

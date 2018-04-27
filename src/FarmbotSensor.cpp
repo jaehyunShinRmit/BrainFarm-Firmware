@@ -49,6 +49,8 @@ FarmbotSensor::FarmbotSensor()
   isInitKalman= false;  
   isUpdatingQ= false;
   isUpdatingR= false;
+  isRawdataLogging =false;
+  isAdvencing = false;
   covR = 0.001;
   covQ = 0.01;
   row = 0;

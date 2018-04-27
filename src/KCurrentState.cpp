@@ -188,6 +188,14 @@ bool KCurrentState::getisUpdatingR()
 {
   return FarmbotSensor.isUpdatingR;
 }
+bool KCurrentState::getisRawdataLogging()
+{
+  return FarmbotSensor.isRawdataLogging;
+}
+bool KCurrentState::getisAdvencing()
+{
+  return FarmbotSensor.isAdvencing;
+}
 long *KCurrentState::getPoint()
 {
   //static long currentPoint[3] = {x, y, z};
@@ -352,6 +360,14 @@ void KCurrentState::setisUpdatingReferenceLocation(bool newis)
 void KCurrentState::setisInitKalman(bool newis)
 {
   FarmbotSensor.isInitKalman = newis;
+}
+void KCurrentState::setisRawdataLogging(bool newis)
+{
+  FarmbotSensor.isRawdataLogging = newis;
+}
+void KCurrentState::setisAdvencing(bool newis)
+{
+  FarmbotSensor.isAdvencing = newis;
 }
 void KCurrentState::setMovingSpeed(unsigned int newspeed)
 {

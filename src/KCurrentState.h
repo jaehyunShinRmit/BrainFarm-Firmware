@@ -49,6 +49,8 @@ public:
   bool getisUpdatingReferenceLocation();
   bool getisUpdatingQ();
   bool getisUpdatingR();
+  bool getisRawdataLogging();
+  bool getisAdvencing();
 
   void setAX(float);
   void setAY(float);
@@ -86,6 +88,8 @@ public:
   void setisUpdatingQ(bool);
   void setisUpdatingR(bool);
   void setMovingSpeed(unsigned int);
+  void setisRawdataLogging(bool);
+  void setisAdvencing(bool);
   void setCovQ(double,long,long);
   void setCovR(double,long,long);
   long *getPoint();

@@ -69,7 +69,8 @@ public:
     bool isInitKalman;
     bool isUpdatingQ;
     bool isUpdatingR;
-
+    bool isRawdataLogging;
+    bool isAdvencing;
     unsigned int movingSpeed;
 
     double covR;

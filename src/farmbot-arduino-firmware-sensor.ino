@@ -31,9 +31,9 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
-#include "TinyGPS++.h"
-#include "SparkFunLSM9DS1.h"
-#include "Filters.h"
+#include <TinyGPS++.h>
+#include <SparkFunLSM9DS1.h>
+#include <Filters.h>
 #include "Fuser.h"
 #include "FarmbotSensor.h"
 #include "Command.h"

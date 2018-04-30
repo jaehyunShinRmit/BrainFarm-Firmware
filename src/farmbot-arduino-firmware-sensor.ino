@@ -137,7 +137,7 @@ bool oneshot = false;
 /////////////////////////////////
 const int PIN_LEFTRIGHT_JOYSTICK  = 6;     //M1 
 const int PIN_FORNTBACK_JOYSTICK  = 7;     //M2 
-const int Stop       = 131;
+const int Stop       = 140;
 int Positive         = 220;
 int Negative         = 70;
 int counter          = 0;
@@ -330,12 +330,15 @@ void setup()
   Timer3.initialize(100000); //0.1 seconds == 100000microseconds
   Timer3.start();
 
-  // Initialize the inactivity check
-  lastAction = millis();
-  Serial.print("R99 ARDUINO STARTUP COMPLETE\r\n");
+
 
   pinMode(PIN_LEFTRIGHT_JOYSTICK, OUTPUT);
   pinMode(PIN_FORNTBACK_JOYSTICK, OUTPUT);
+  motorstop();
+
+    // Initialize the inactivity check
+  lastAction = millis();
+  Serial.print("R99 ARDUINO STARTUP COMPLETE\r\n");
 }
 
 

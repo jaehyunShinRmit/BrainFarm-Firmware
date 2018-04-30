@@ -201,7 +201,10 @@ long *KCurrentState::getPoint()
   //static long currentPoint[3] = {x, y, z};
   //return currentPoint;
 }
-
+long KCurrentState::getMovingDistance()
+{
+  return FarmbotSensor.movingDistance;
+}
 
 
 
@@ -405,8 +408,10 @@ void KCurrentState::setStepsPerMm(long stepsX, long stepsY, long stepsZ)
   stepsPerMmZ = stepsZ;
 }
 
-
-
+void KCurrentState::setMovingDistance(long movingDistance)
+{
+  FarmbotSensor.movingDistance = movingDistance;
+}
 
 
 int KCurrentState::getLastError()

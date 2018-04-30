@@ -276,7 +276,7 @@ void interrupt_motor(void) {
   
   if (interrupt3Busy == false) {
     interrupt3Busy = true;
-    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < 20){
+    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < KCurrentState::getInstance()->getMovingDistance()*10){
          movingTimer++;
          motoradvance();       //Move forward
          Serial.println("Advancing");

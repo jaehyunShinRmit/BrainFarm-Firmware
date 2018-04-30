@@ -55,4 +55,5 @@ FarmbotSensor::FarmbotSensor()
   covQ = 0.01;
   row = 0;
   col = 0;
+  movingDistance = 2; 
 }

@@ -28,7 +28,7 @@ int K73Handler::execute(Command *command)
 
   if (LOGGING)
   {
-    Serial.print("R99 Report Setting moving speed \r\n");
+    Serial.print("Report Setting moving speed \r\n");
   }
 
   KCurrentState::getInstance()->setMovingSpeed(command->getMS());

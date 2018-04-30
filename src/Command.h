@@ -80,7 +80,7 @@ public:
   long getE();
   long getM();
   long getQ();
-
+  long getMD();
   unsigned int getMS(); // movingSpeed added by jaehyun Shin
   double getsysCovariance(); //added by jaehyun Shin
   double getmeasureCovariance();//added by jaehyun Shin
@@ -108,10 +108,11 @@ private:
 
   //add by Jaehyun Shin.
   long matrixIndex[2] = {0,0};
-  unsigned int movingSpeed;
   double sysCovariance = 0.001;
   double measureCovariance = 0.01;
-
+  long movingDistance = 2; // 2 second
+  long movingLength   = 20; 
+  unsigned int movingSpeed= 10;
 };
 
 #endif /* COMMAND_H_ */

@@ -17,15 +17,15 @@ const char modeCode = 'M';
 const char msgQueueCode = 'Q';
 
 //Added for Farmbot-Sensor 
-const char movingSpeedCode = 'D';
-const char sensorCode    = 'K';
-const char latitudeCode  = 'L';
-const char longitudeCode = 'O';
-const char headingCode   = 'H';
+const char movingDistanceCode   = 'D';
+const char sensorCode        = 'K';
+const char latitudeCode      = 'L';
+const char longitudeCode     = 'O';
+const char headingCode       = 'H';
 const char sysCovarianceCode = 'I';
 const char measureCovarianceCode ='J';
-const char matrixColCode = 'N';
-const char matrixRowCode = 'U';
+const char matrixColCode     = 'N';
+const char matrixRowCode     = 'U';
 
 CommandCodeEnum commandCodeEnum = CODE_UNDEFINED;
 
@@ -323,9 +323,9 @@ void Command::getParameter(char *charPointer)
   }
 
   // add by Jaehyun Shin
-  if (charPointer[0] == movingSpeedCode)
+  if (charPointer[0] == movingDistanceCode)
   {
-    movingSpeed = atof(charPointer + 1);
+    movingDistance = atof(charPointer + 1);
   }
   
   if (charPointer[0] == sysCovarianceCode)
@@ -468,6 +468,10 @@ long Command::getCol()
 unsigned int Command::getMS()
 {
   return movingSpeed;
+}
+long Command::getMD()
+{
+  return movingDistance;
 }
 double Command::getsysCovariance()
 {

@@ -31,6 +31,7 @@ public:
   double getCovR();
   long getRow();
   long getCol();
+  long getMovingDistance();
   float getRoll();
   float getPitch();
   float getHeading();
@@ -61,6 +62,7 @@ public:
   void setMX(float);
   void setMY(float);
   void setMZ(float);
+  void setMovingDistance(long);
   void setLat(double);
   void setLog(double);
   void setSpeed(double);

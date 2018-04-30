@@ -26,10 +26,10 @@ int K11Handler::execute(Command *command)
 {
   if (LOGGING)
   {
-    Serial.print("Raw data Logging start \r\n");
+    Serial.print("Stop data Logging \r\n");
   }
 
-  KCurrentState::getInstance()->setisRawdataLogging(true);
+  KCurrentState::getInstance()->setisRawdataLogging(false);
 
   return 0;
 }

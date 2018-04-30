@@ -77,6 +77,10 @@ public:
     double covQ;
     long row;
     long col;
+
+    //Moving
+    long movingDistance;
+    
 };
 
 #endif // FARMBOTSENSOR_H

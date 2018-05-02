@@ -154,7 +154,7 @@ unsigned long lastLog = 0; // Global var to keep of last time we logged
 #define SENSORUPDATE_SPEED 50  // 50ms -> 20hz update rate
 #define MAXINDEXUIO 10*300     // 300s
 #define MAXINDEXURL 10*300     // 300s
-
+#define SAMPLING_RATE 100 // 100ms
 
 bool interruptBusy = false;
 int interruptSecondTimer = 0;
@@ -167,9 +167,9 @@ void interrupt(void) {
     
     if (interruptBusy == false) {
       interruptBusy = true;
+      
       // triggered once per 100 ms
-          
-      if (interruptSecondTimer >= 100000 / MOVEMENT_INTERRUPT_SPEED) {
+      if (interruptSecondTimer >= SAMPLING_RATE) {
         interruptSecondTimer = 0;
         updateOriantation();
         Bot.latitude  = (double)tinyGPS.location.lat();
@@ -276,15 +276,15 @@ void interrupt_motor(void) {
   
   if (interrupt3Busy == false) {
     interrupt3Busy = true;
-    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < KCurrentState::getInstance()->getMovingDistance()*10){
+    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < KCurrentState::getInstance()->getMovingDistance()*1000){
          movingTimer++;
          motoradvance();       //Move forward
-         Serial.println("Advancing");
     }
     else{
         movingTimer=0;
         motorstop();
         KCurrentState::getInstance()->setisAdvencing(false);
+        KCurrentState::getInstance()->setisRawdataLogging(false);
     }
       //back_off ()          //Move backward
       //turn_L ()            //Turn Left
@@ -323,11 +323,11 @@ void setup()
   // Interrupt management code library written by Paul Stoffregen
   // The default time 100 micro seconds
   Timer1.attachInterrupt(interrupt);
-  Timer1.initialize(MOVEMENT_INTERRUPT_SPEED);
+  Timer1.initialize(1000); //1 ms == 1000 microseconds
   Timer1.start();
 
   Timer3.attachInterrupt(interrupt_motor);
-  Timer3.initialize(100000); //0.1 seconds == 100000microseconds
+  Timer3.initialize(1000); //1 ms == 1000 microseconds
   Timer3.start();
 
 

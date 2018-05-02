@@ -168,6 +168,10 @@ CommandCodeEnum Command::getGCodeEnum(char *code)
 
   // add by Jaehyun Shin
   // add 'K' for Farmbot sensor
+  if (strcmp(code, "K10") == 0)
+  {
+    return K10;
+  }
   if (strcmp(code, "K11") == 0)
   {
     return K11;

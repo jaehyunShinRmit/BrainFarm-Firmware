@@ -36,7 +36,7 @@ int KCodeProcessor::execute(Command *command)
   int maximumAttempts = ParameterList::getInstance()->getValue(PARAM_MOV_NR_RETRY);
 
   long Q = command->getQ();
-  //CurrentState::getInstance()->setQ(Q);
+  KCurrentState::getInstance()->setQ(Q);
 
   if
   (
@@ -209,6 +209,10 @@ KCodeHandler *KCodeProcessor::getKCodeHandler(CommandCodeEnum codeEnum)
   KCodeHandler *handler = NULL;
   // These are if statements so they can be disabled as test
   // Usefull when running into memory issues again
+  if (codeEnum == K10)
+  {
+    handler = K10Handler::getInstance();
+  }
   if (codeEnum == K11)
   {
     handler = K11Handler::getInstance();

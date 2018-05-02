@@ -14,6 +14,7 @@
 #include "Debug.h"
 
 #include "KCodeHandler.h"
+#include "K10Handler.h"
 #include "K11Handler.h"
 #include "K12Handler.h"
 #include "K51Handler.h"

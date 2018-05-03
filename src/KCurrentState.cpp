@@ -7,11 +7,11 @@
  */
 
 #include "KCurrentState.h"
-#include "FarmbotSensor.h"
+#include "BrainBotSensor.h"
 
 static KCurrentState *instance;
 
-FarmbotSensor FarmbotSensor;
+BrainBotSensor BrainBotSensor;
 
 long x = 0;
 long y = 0;
@@ -42,358 +42,359 @@ KCurrentState::KCurrentState()
 
 float KCurrentState::getAX()
 {
-  return FarmbotSensor.ax;
+  return BrainBotSensor.ax;
 }
 
 float KCurrentState::getAY()
 {
-  return FarmbotSensor.ay;
+  return BrainBotSensor.ay;
 }
 
 float KCurrentState::getAZ()
 {
-  return FarmbotSensor.az;
+  return BrainBotSensor.az;
 }
 float KCurrentState::getGX()
 {
-  return FarmbotSensor.gx;
+  return BrainBotSensor.gx;
 }
 
 float KCurrentState::getGY()
 {
-  return FarmbotSensor.gy;
+  return BrainBotSensor.gy;
 }
 
 float KCurrentState::getGZ()
 {
-  return FarmbotSensor.gz;
+  return BrainBotSensor.gz;
 }
 float KCurrentState::getMX()
 {
-  return FarmbotSensor.mx;
+  return BrainBotSensor.mx;
 }
 
 float KCurrentState::getMY()
 {
-  return FarmbotSensor.my;
+  return BrainBotSensor.my;
 }
 
 float KCurrentState::getMZ()
 {
-  return FarmbotSensor.mz;
+  return BrainBotSensor.mz;
 }
 
 double KCurrentState::getLat()
 {
-  return FarmbotSensor.latitude;
+  return BrainBotSensor.latitude;
 }
 
 double KCurrentState::getLog()
 {
-  return FarmbotSensor.longitude;
+  return BrainBotSensor.longitude;
 }
 
 double KCurrentState::getSpeed()
 {
-  return FarmbotSensor.speed;
+  return BrainBotSensor.speed;
 }
 
 double KCurrentState::getCovQ()
 {
-  return FarmbotSensor.covQ;
+  return BrainBotSensor.covQ;
 }
 long KCurrentState::getRow()
 {
-  return FarmbotSensor.row;
+  return BrainBotSensor.row;
 }
 long KCurrentState::getCol()
 {
-  return FarmbotSensor.col;
+  return BrainBotSensor.col;
 }
 double KCurrentState::getCovR()
 {
-  return FarmbotSensor.covR;
+  return BrainBotSensor.covR;
 }
 float KCurrentState::getRoll()
 {
-  return FarmbotSensor.roll;
+  return BrainBotSensor.roll;
 }
 
 float KCurrentState::getPitch()
 {
-  return FarmbotSensor.pitch;
+  return BrainBotSensor.pitch;
 }
 
 float KCurrentState::getHeading()
 {
-  return FarmbotSensor.heading;
+  return BrainBotSensor.heading;
 }
 bool KCurrentState::getisIMUReady()
 {
-  return FarmbotSensor.isIMUReady;
+  return BrainBotSensor.isIMUReady;
 }
 bool KCurrentState::getisMotorReady()
 {
-  return FarmbotSensor.isMotorReady;
+  return BrainBotSensor.isMotorReady;
 }
 bool KCurrentState::getisGPSReady()
 {
-  return FarmbotSensor.isGPSReady;
+  return BrainBotSensor.isGPSReady;
 }
 bool KCurrentState::getisKalmanReady()
 {
-  return FarmbotSensor.isKalmanReady;
+  return BrainBotSensor.isKalmanReady;
 }
 bool KCurrentState::getisKalmanFiltering()
 {
-  return FarmbotSensor.isKalmanFiltering;
+  return BrainBotSensor.isKalmanFiltering;
 }
 bool KCurrentState::getisMovingForward()
 {
-  return FarmbotSensor.isMovingForward;
+  return BrainBotSensor.isMovingForward;
 }
 bool KCurrentState::getisMovingBackward()
 {
-  return FarmbotSensor.isMovingBackward;
+  return BrainBotSensor.isMovingBackward;
 }
 bool KCurrentState::getisArrvied()
 {
-  return FarmbotSensor.isArrived;
+  return BrainBotSensor.isArrived;
 }
 bool KCurrentState::getisStopped()
 {
-  return FarmbotSensor.isStopped;
+  return BrainBotSensor.isStopped;
 }
 bool KCurrentState::getisGPSAveraging()
 {
-  return FarmbotSensor.isGPSAveraging;
+  return BrainBotSensor.isGPSAveraging;
 }
 bool KCurrentState::getisUpdatingInitialOrientation()
 {
-  return FarmbotSensor.isUpdatingInitialOrientation;
+  return BrainBotSensor.isUpdatingInitialOrientation;
 }
 bool KCurrentState::getisUpdatingReferenceLocation()
 {
-  return FarmbotSensor.isUpdatingReferenceLocation;
+  return BrainBotSensor.isUpdatingReferenceLocation;
 }
 bool KCurrentState::getisInitKalman()
 {
-  return FarmbotSensor.isInitKalman;
+  return BrainBotSensor.isInitKalman;
 }
 bool KCurrentState::getisUpdatingQ()
 {
-  return FarmbotSensor.isUpdatingQ;
+  return BrainBotSensor.isUpdatingQ;
 }
 bool KCurrentState::getisUpdatingR()
 {
-  return FarmbotSensor.isUpdatingR;
+  return BrainBotSensor.isUpdatingR;
 }
 bool KCurrentState::getisRawdataLogging()
 {
-  return FarmbotSensor.isRawdataLogging;
+  return BrainBotSensor.isRawdataLogging;
 }
 bool KCurrentState::getisAdvencing()
 {
-  return FarmbotSensor.isAdvencing;
+  return BrainBotSensor.isAdvencing;
 }
 long *KCurrentState::getPoint()
 {
   //static long currentPoint[3] = {x, y, z};
   //return currentPoint;
+  return 0;
 }
 long KCurrentState::getMovingDistance()
 {
-  return FarmbotSensor.movingDistance;
+  return BrainBotSensor.movingDistance;
 }
 
 
 
 void KCurrentState::setAX(float newAX)
 {
-  FarmbotSensor.ax = newAX;
+  BrainBotSensor.ax = newAX;
 }
 
 void KCurrentState::setAY(float newAY)
 {
-  FarmbotSensor.ay = newAY;
+  BrainBotSensor.ay = newAY;
 }
 
 void KCurrentState::setAZ(float newAZ)
 {
-  FarmbotSensor.az = newAZ;
+  BrainBotSensor.az = newAZ;
 }
 
 void KCurrentState::setGX(float newGX)
 {
-  FarmbotSensor.gx = newGX;
+  BrainBotSensor.gx = newGX;
 }
 
 void KCurrentState::setGY(float newGY)
 {
-  FarmbotSensor.gy = newGY;
+  BrainBotSensor.gy = newGY;
 }
 
 void KCurrentState::setGZ(float newGZ)
 {
-  FarmbotSensor.gz = newGZ;
+  BrainBotSensor.gz = newGZ;
 }
 
 
 void KCurrentState::setMX(float newMX)
 {
-  FarmbotSensor.mx = newMX;
+  BrainBotSensor.mx = newMX;
 }
 
 void KCurrentState::setMY(float newMY)
 {
-  FarmbotSensor.my = newMY;
+  BrainBotSensor.my = newMY;
 }
 
 void KCurrentState::setMZ(float newMZ)
 {
-  FarmbotSensor.mz = newMZ;
+  BrainBotSensor.mz = newMZ;
 }
 
 void KCurrentState::setLat(double newLat)
 {
-  FarmbotSensor.latitude = newLat;
+  BrainBotSensor.latitude = newLat;
 }
 
 void KCurrentState::setLog(double newLog)
 {
-  FarmbotSensor.longitude = newLog;
+  BrainBotSensor.longitude = newLog;
 }
 
 void KCurrentState::setSpeed(double newSpeed)
 {
-  FarmbotSensor.speed = newSpeed;
+  BrainBotSensor.speed = newSpeed;
 }
 
 void KCurrentState::setRoll(float newRoll)
 {
-  FarmbotSensor.roll_deg = newRoll;
+  BrainBotSensor.roll_deg = newRoll;
 }
 
 void KCurrentState::setPitch(float newPitch)
 {
-  FarmbotSensor.pitch_deg = newPitch;
+  BrainBotSensor.pitch_deg = newPitch;
 }
 
 void KCurrentState::setHeading(float newHeading)
 {
-  FarmbotSensor.heading_deg = newHeading;
+  BrainBotSensor.heading_deg = newHeading;
 }
 
 void KCurrentState::setInitRoll(float newRoll)
 {
-  FarmbotSensor.initRoll = newRoll;
+  BrainBotSensor.initRoll = newRoll;
 }
 
 void KCurrentState::setInitPitch(float newPitch)
 {
-  FarmbotSensor.initPitch = newPitch;
+  BrainBotSensor.initPitch = newPitch;
 }
 
 void KCurrentState::setInitHeading(float newHeading)
 {
-  FarmbotSensor.initHeading = newHeading;
+  BrainBotSensor.initHeading = newHeading;
 }
 void KCurrentState::setInitLat(double newinitLat)
 {
-  FarmbotSensor.initLat = newinitLat;
+  BrainBotSensor.initLat = newinitLat;
 }
 void KCurrentState::setInitLon(double newinitLon)
 {
-  FarmbotSensor.initLon = newinitLon;
+  BrainBotSensor.initLon = newinitLon;
 }
 
 void KCurrentState::setisIMUReady(bool newis)
 {
-  FarmbotSensor.isIMUReady = newis;
+  BrainBotSensor.isIMUReady = newis;
 }
 
 void KCurrentState::setisMotorReady(bool newis)
 {
-  FarmbotSensor.isMotorReady = newis;
+  BrainBotSensor.isMotorReady = newis;
 }
 void KCurrentState::setisGPSReady(bool newis)
 {
-  FarmbotSensor.isGPSReady = newis;
+  BrainBotSensor.isGPSReady = newis;
 }
 void KCurrentState::setisKalmanReady(bool newis)
 {
-  FarmbotSensor.isKalmanReady = newis;
+  BrainBotSensor.isKalmanReady = newis;
 }
 void KCurrentState::setisKalmanFiltering(bool newis)
 {
-  FarmbotSensor.isKalmanFiltering = newis;
+  BrainBotSensor.isKalmanFiltering = newis;
 }
 void KCurrentState::setisMovingForward(bool newis)
 {
-  FarmbotSensor.isMovingForward = newis;
-  FarmbotSensor.isMovingBackward = !(newis);
+  BrainBotSensor.isMovingForward = newis;
+  BrainBotSensor.isMovingBackward = !(newis);
 }
 void KCurrentState::setisMovingBackward(bool newis)
 {
-  FarmbotSensor.isMovingBackward = newis;
-  FarmbotSensor.isMovingForward = !(newis);
+  BrainBotSensor.isMovingBackward = newis;
+  BrainBotSensor.isMovingForward = !(newis);
 }
 void KCurrentState::setisArrived(bool newis)
 {
-  FarmbotSensor.isArrived = newis;
+  BrainBotSensor.isArrived = newis;
 }
 void KCurrentState::setisStopped(bool newis)
 {
-  FarmbotSensor.isStopped = newis;
-  FarmbotSensor.isMovingBackward = !(newis);
-  FarmbotSensor.isMovingForward = !(newis);
+  BrainBotSensor.isStopped = newis;
+  BrainBotSensor.isMovingBackward = !(newis);
+  BrainBotSensor.isMovingForward = !(newis);
 }
 void KCurrentState::setisGPSAveraging(bool newis)
 {
-  FarmbotSensor.isGPSAveraging = newis;
+  BrainBotSensor.isGPSAveraging = newis;
 }
 void KCurrentState::setisUpdatingInitialOrientation(bool newis)
 {
-  FarmbotSensor.isUpdatingInitialOrientation = newis;
+  BrainBotSensor.isUpdatingInitialOrientation = newis;
 }
 void KCurrentState::setisUpdatingReferenceLocation(bool newis)
 {
-  FarmbotSensor.isUpdatingReferenceLocation = newis;
+  BrainBotSensor.isUpdatingReferenceLocation = newis;
 }
 void KCurrentState::setisInitKalman(bool newis)
 {
-  FarmbotSensor.isInitKalman = newis;
+  BrainBotSensor.isInitKalman = newis;
 }
 void KCurrentState::setisRawdataLogging(bool newis)
 {
-  FarmbotSensor.isRawdataLogging = newis;
+  BrainBotSensor.isRawdataLogging = newis;
 }
 void KCurrentState::setisAdvencing(bool newis)
 {
-  FarmbotSensor.isAdvencing = newis;
+  BrainBotSensor.isAdvencing = newis;
 }
 void KCurrentState::setMovingSpeed(unsigned int newspeed)
 {
-  FarmbotSensor.movingSpeed = newspeed;
+  BrainBotSensor.movingSpeed = newspeed;
 }
 void KCurrentState::setisUpdatingQ(bool newis)
 {
-  FarmbotSensor.isUpdatingQ = newis;
+  BrainBotSensor.isUpdatingQ = newis;
 }
 void KCurrentState::setisUpdatingR(bool newis)
 {
-  FarmbotSensor.isUpdatingR = newis;
+  BrainBotSensor.isUpdatingR = newis;
 }
 void KCurrentState::setCovQ(double newQ, long row, long col)
 {
-  FarmbotSensor.covQ = newQ;
-  FarmbotSensor.row = row;
-  FarmbotSensor.col = col;
+  BrainBotSensor.covQ = newQ;
+  BrainBotSensor.row = row;
+  BrainBotSensor.col = col;
 }
 void KCurrentState::setCovR(double newR, long row, long col){
-  FarmbotSensor.covR = newR;
-  FarmbotSensor.row = row;
-  FarmbotSensor.col = col;
+  BrainBotSensor.covR = newR;
+  BrainBotSensor.row = row;
+  BrainBotSensor.col = col;
 }
 
 void KCurrentState::setEndStopState(unsigned int axis, unsigned int position, bool state)
@@ -410,7 +411,7 @@ void KCurrentState::setStepsPerMm(long stepsX, long stepsY, long stepsZ)
 
 void KCurrentState::setMovingDistance(long movingDistance)
 {
-  FarmbotSensor.movingDistance = movingDistance;
+  BrainBotSensor.movingDistance = movingDistance;
 }
 
 
@@ -442,32 +443,32 @@ void KCurrentState::printPosition()
 {
   Serial.print("R82");
   Serial.print(" Latitude");
-  Serial.print(FarmbotSensor.latitude);
+  Serial.print(BrainBotSensor.latitude);
   Serial.print(" Longtidue");
-  Serial.print(FarmbotSensor.longitude);
+  Serial.print(BrainBotSensor.longitude);
   Serial.print(" Speed(mph)");
-  Serial.print(FarmbotSensor.speed);
+  Serial.print(BrainBotSensor.speed);
   printQAndNewLine();
 }
 void KCurrentState::printAcceleration(){
   Serial.print("R82");
   Serial.print(" AX");
-  Serial.print(FarmbotSensor.ax);
+  Serial.print(BrainBotSensor.ax);
   Serial.print(" AY");
-  Serial.print(FarmbotSensor.ay);
+  Serial.print(BrainBotSensor.ay);
   Serial.print(" AZ");
-  Serial.print(FarmbotSensor.az);
+  Serial.print(BrainBotSensor.az);
   printQAndNewLine();
 }
 
 void KCurrentState::printOrientation(){
   Serial.print("R82");
   Serial.print(" R");
-  Serial.print(FarmbotSensor.roll_deg);
+  Serial.print(BrainBotSensor.roll_deg);
   Serial.print(" P");
-  Serial.print(FarmbotSensor.pitch_deg);
+  Serial.print(BrainBotSensor.pitch_deg);
   Serial.print(" H");
-  Serial.print(FarmbotSensor.heading_deg);
+  Serial.print(BrainBotSensor.heading_deg);
   printQAndNewLine();
 }
 

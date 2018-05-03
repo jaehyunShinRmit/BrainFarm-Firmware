@@ -1,6 +1,6 @@
-#include "FarmbotSensor.h"
+#include "BrainBotSensor.h"
 
-FarmbotSensor::FarmbotSensor()
+BrainBotSensor::BrainBotSensor()
 {
   //Initialization
   initRoll = 0;

@@ -18,15 +18,9 @@
    VDD    --------- 3.3V
    GND    --------- GND
 
-  # DC Motor Driver 2x15A_lite module.
-  The pin-out is as follows:
-  Driver  --------- Arduino
-   M1_PWM --------- PIN5
-   M2_PWM --------- PIN6
-   M1_EN  --------- PIN4
-   M2_EN  --------- PIN7
-   +5v    --------- +5v
-   GND    --------- GND
+  # Joystick pin
+  EFTRIGHT_JOYSTICK  --- PWM6;     //M1 
+  FORNTBACK_JOYSTICK --- PWM7;     //M2 
 ******************************************************************************/
 #include <Wire.h>
 #include <SPI.h>
@@ -35,7 +29,7 @@
 #include <SparkFunLSM9DS1.h>
 #include <Filters.h>
 #include "Fuser.h"
-#include "FarmbotSensor.h"
+#include "BrainBotSensor.h"
 #include "Command.h"
 //#include "GCodeProcessor.h" //need to uncomment it to use Gcode
 #include "KCodeProcessor.h"
@@ -47,7 +41,7 @@
 #include "Debug.h"
 
 
-FarmbotSensor Bot; // Frambot Sensor state variables
+BrainBotSensor Bot; // Frambot Sensor state variables
 LSM9DS1 imu; //IMU
 Fuser ekf;   //EKF
 static char commandEndChar = 0x0A;
@@ -576,9 +570,9 @@ byte logRawData(){
     logFile.print(',');
     logFile.print(Bot.heading_deg, 5);
     logFile.print(',');
-    logFile.print(tinyGPS.location.lng(), 6);
-    logFile.print(',');
     logFile.print(tinyGPS.location.lat(), 6);
+    logFile.print(',');
+    logFile.print(tinyGPS.location.lng(), 6);
     logFile.print(',');
     logFile.print(tinyGPS.speed.mph(), 2);
     logFile.print(',');

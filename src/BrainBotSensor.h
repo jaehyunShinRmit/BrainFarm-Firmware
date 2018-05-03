@@ -1,11 +1,11 @@
-#ifndef FARMBOTSENSOR_H
-#define FARMBOTSENSOR_H
+#ifndef BrainBotSensor_H
+#define BrainBotSensor_H
 
 
-class FarmbotSensor
+class BrainBotSensor
 {
 public:
-    FarmbotSensor();
+    BrainBotSensor();
     //Initial condition
     float initRoll;
     float initPitch;
@@ -83,4 +83,4 @@ public:
     
 };
 
-#endif // FARMBOTSENSOR_H
+#endif // BrainBotSensor_H

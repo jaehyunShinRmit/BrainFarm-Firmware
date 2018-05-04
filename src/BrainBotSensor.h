@@ -70,6 +70,7 @@ public:
     bool isUpdatingQ;
     bool isUpdatingR;
     bool isRawdataLogging;
+    bool isReinforceddataLogging;
     bool isAdvencing;
     unsigned int movingSpeed;
 

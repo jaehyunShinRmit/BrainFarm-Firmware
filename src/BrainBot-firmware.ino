@@ -72,6 +72,18 @@ FilterOnePole AzLowpass(LOWPASS, filterFrequency);  // create a one pole (RC) lo
 FilterOnePole MxLowpass(LOWPASS, filterFrequency);  // create a one pole (RC) lowpass filter
 FilterOnePole MyLowpass(LOWPASS, filterFrequency);  // create a one pole (RC) lowpass filter
 FilterOnePole MzLowpass(LOWPASS, filterFrequency);  // create a one pole (RC) lowpass filter
+
+//Joystick
+int LeftRight1 = 0;  // variable to store the value coming from the sensor
+int LeftRight2 = 0;  // variable to store the value coming from the sensor
+int FrontBack1 = 0;  // variable to store the value coming from the sensor
+int FrontBack2 = 0;  // variable to store the value coming from the sensor
+int sensorPin8 = A8;    // select the input pin 
+int sensorPin9 = A9;    // select the input pin   
+int sensorPin10 = A10;    // select the input pin 
+int sensorPin11 = A11;    // select the input pin
+
+
 //////////////////
 //  IMU Sensor  //
 //////////////////
@@ -162,8 +174,8 @@ void interrupt(void) {
     if (interruptBusy == false) {
       interruptBusy = true;
       
-      // triggered once per 100 ms
-      if (interruptSecondTimer >= SAMPLING_RATE) {
+      // triggered once per 10 ms
+      if (interruptSecondTimer >= SAMPLING_RATE/10) {
         interruptSecondTimer = 0;
         updateOriantation();
         Bot.latitude  = (double)tinyGPS.location.lat();
@@ -172,6 +184,11 @@ void interrupt(void) {
         // Logging Raw data 
         if(KCurrentState::getInstance()->getisRawdataLogging()){
           logRawData();
+        }
+        if(KCurrentState::getInstance()->getisReinforceddataLogging()){
+          logRawData();
+          LoggingForReinforceLearing(); // send serial message to Main program 
+          //SendingRawData();
         }
         // Running Kalman filtering - Absolute Optimization
         if (KCurrentState::getInstance()->getisKalmanFiltering()) {
@@ -332,11 +349,8 @@ void setup()
 
     // Initialize the inactivity check
   lastAction = millis();
-  Serial.print("R99 ARDUINO STARTUP COMPLETE\r\n");
+  Serial.print("ARDUINO STARTUP COMPLETE\r\n");
 }
-
-
-
 
 void loop()
 {
@@ -583,7 +597,7 @@ byte logRawData(){
     return 1; // Return success
   }
   else{
-    Serial.print("The log file has been open - please check the SD card\r\n");
+    Serial.print("The log file has not been opend - please check the SD card\r\n");
     KCurrentState::getInstance()->setisRawdataLogging(false);
   }
   return 0; // If we failed to open the file, return fail
@@ -712,3 +726,55 @@ void stateupdate(void) {
   KCurrentState::getInstance()->setSpeed(Bot.speed);
 }
 
+void LoggingForReinforceLearing (void) {
+  LeftRight1 = analogRead(sensorPin8);
+  LeftRight2 = analogRead(sensorPin9);
+  FrontBack1 = analogRead(sensorPin10);
+  FrontBack2 = analogRead(sensorPin11);
+  LeftRight1 = map(LeftRight1, 0, 1023, 0, 255);
+  LeftRight2 = map(LeftRight2, 0, 1023, 0, 255);
+  FrontBack1 = map(FrontBack1, 0, 1023, 0, 255);
+  FrontBack2 = map(FrontBack2, 0, 1023, 0, 255);
+  
+  Serial.print(LeftRight1);
+  Serial.print(',');
+  Serial.print(LeftRight2);
+  Serial.print(',');
+  Serial.print(FrontBack1);
+  Serial.print(',');
+  Serial.print(FrontBack2);
+  Serial.print(',');
+  Serial.print(Bot.roll);
+  Serial.print(',');
+  Serial.print(Bot.pitch);
+  Serial.print(',');
+  Serial.println(Bot.heading);
+} 
+
+void SendingRawData(void){
+  Serial.print(Bot.ax);
+  Serial.print(',');
+  Serial.print(Bot.ay);
+  Serial.print(',');
+  Serial.print(Bot.az);
+  Serial.print(',');
+  Serial.print(Bot.gx);
+  Serial.print(',');
+  Serial.print(Bot.gy);
+  Serial.print(',');
+  Serial.print(Bot.gz);
+  Serial.print(',');
+  Serial.print(Bot.roll);
+  Serial.print(',');
+  Serial.print(Bot.pitch);
+  Serial.print(',');
+  Serial.print(Bot.heading);
+  Serial.print(',');
+  Serial.print(tinyGPS.location.lat());
+  Serial.print(',');
+  Serial.print(tinyGPS.location.lng());
+  Serial.print(',');
+  Serial.print(tinyGPS.speed.mph());
+  Serial.print(',');
+  Serial.println(tinyGPS.course.deg());
+}

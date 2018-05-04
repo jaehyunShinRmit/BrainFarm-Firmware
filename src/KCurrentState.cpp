@@ -192,6 +192,10 @@ bool KCurrentState::getisRawdataLogging()
 {
   return BrainBotSensor.isRawdataLogging;
 }
+bool KCurrentState::getisReinforceddataLogging()
+{
+  return BrainBotSensor.isReinforceddataLogging;
+}
 bool KCurrentState::getisAdvencing()
 {
   return BrainBotSensor.isAdvencing;
@@ -368,6 +372,10 @@ void KCurrentState::setisInitKalman(bool newis)
 void KCurrentState::setisRawdataLogging(bool newis)
 {
   BrainBotSensor.isRawdataLogging = newis;
+}
+void KCurrentState::setisReinforceddataLogging(bool newis)
+{
+  BrainBotSensor.isReinforceddataLogging = newis;
 }
 void KCurrentState::setisAdvencing(bool newis)
 {

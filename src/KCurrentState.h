@@ -51,6 +51,7 @@ public:
   bool getisUpdatingQ();
   bool getisUpdatingR();
   bool getisRawdataLogging();
+  bool getisReinforceddataLogging();
   bool getisAdvencing();
 
   void setAX(float);
@@ -91,6 +92,7 @@ public:
   void setisUpdatingR(bool);
   void setMovingSpeed(unsigned int);
   void setisRawdataLogging(bool);
+  void setisReinforceddataLogging(bool);
   void setisAdvencing(bool);
   void setCovQ(double,long,long);
   void setCovR(double,long,long);

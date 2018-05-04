@@ -30,6 +30,6 @@ int K10Handler::execute(Command *command)
   }
 
   KCurrentState::getInstance()->setisRawdataLogging(false);
-
+  KCurrentState::getInstance()->setisReinforceddataLogging(false);
   return 0;
 }

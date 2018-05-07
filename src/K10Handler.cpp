@@ -24,11 +24,7 @@ K10Handler::K10Handler()
 
 int K10Handler::execute(Command *command)
 {
-  if (LOGGING)
-  {
-    Serial.print("Stop data Logging \r\n");
-  }
-
+  Serial.print("K10 Stop data Logging \r\n");
   KCurrentState::getInstance()->setisRawdataLogging(false);
   KCurrentState::getInstance()->setisReinforceddataLogging(false);
   return 0;

@@ -24,12 +24,10 @@ K11Handler::K11Handler()
 
 int K11Handler::execute(Command *command)
 {
-  if (LOGGING)
-  {
-    Serial.print("Start data Logging \r\n");
-  }
-
+  Serial.print("K11 Start data Logging \r\n");
+  
   KCurrentState::getInstance()->setisRawdataLogging(true);
-
+  KCurrentState::getInstance()->updateFileName();
+  KCurrentState::getInstance()->printHeader();
   return 0;
 }

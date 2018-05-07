@@ -15,6 +15,27 @@ class KCurrentState
 public:
   static KCurrentState *getInstance();
 
+  //SD card
+  void printHeader();
+  void updateFileName();
+  // Keep in mind, the SD library has max file name lengths of 8.3 - 8 char prefix,
+  // and a 3 char suffix.
+  // Our log files are called "logXX.csv, so "gpslog99.csv" is our max file.
+  
+  #define LOG_FILE_PREFIX "log" // Name of the log file.
+  #define MAX_LOG_FILES 100000 // Number of log files that can be made
+  #define LOG_FILE_SUFFIX "csv" // Suffix of the log file
+  #define LOG_COLUMN_COUNT 14
+
+  char logFileName[13]; // Char string to store the log file name
+  // Data to be logged:
+  const char * log_col_names[LOG_COLUMN_COUNT] = {
+  "ms", "E(mm)", "N(mm)", "V(mm/s)","P(rad)","DP(rad/s)", "A(mm/s^2)","Heading(IMU)","roll(deg)", "pitch(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+  }; // log_col_names is printed at the top of the file.
+  const char * log_col_names_raw[LOG_COLUMN_COUNT] = {
+  "ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","Roll(deg)","pitch(deg)", "heading(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+  }; // log_col_names is printed at the top of the file.
+
   float getAX();
   float getAY();
   float getAZ();

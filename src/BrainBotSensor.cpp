@@ -52,10 +52,11 @@ BrainBotSensor::BrainBotSensor()
   isRawdataLogging =false;
   isReinforceddataLogging = false;
   isAdvencing = false;
-
   covR = 0.001;
   covQ = 0.01;
   row = 0;
   col = 0;
   movingDistance = 2; 
+  
 }
+

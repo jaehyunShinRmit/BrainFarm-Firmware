@@ -1,6 +1,7 @@
 #ifndef BrainBotSensor_H
 #define BrainBotSensor_H
 
+#include <SD.h>
 
 class BrainBotSensor
 {
@@ -82,6 +83,9 @@ public:
     //Moving
     long movingDistance;
     
+    
+    
+
 };
 
 #endif // BrainBotSensor_H

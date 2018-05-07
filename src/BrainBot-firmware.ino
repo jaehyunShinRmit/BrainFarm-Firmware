@@ -44,6 +44,7 @@
 BrainBotSensor Bot; // Frambot Sensor state variables
 LSM9DS1 imu; //IMU
 Fuser ekf;   //EKF
+
 static char commandEndChar = 0x0A;
 static KCodeProcessor *kCodeProcessor = new KCodeProcessor();
 //static GCodeProcessor *gCodeProcessor = new GCodeProcessor(); //need to uncomment it to use Gcode
@@ -109,30 +110,16 @@ float mag_softiron_matrix[3][3] = { { 0.97196, 0.00833, 0.00444 },
 // GPS and Logger shield//
 //////////////////////////
 TinyGPSPlus tinyGPS; // tinyGPSPlus object to be used throughout
+#define gpsPort Serial1  // Alternatively, use Serial1 on the Leonardo
 #define GPS_BAUD 9600 // GPS module's default baud rate
 // If you're using an Arduino Uno, Mega, RedBoard, or any board that uses the
 // 0/1 UART for programming/Serial monitor-ing, use SoftwareSerial:
-// Set gpsPort to either ssGPS if using SoftwareSerial or Serial1 if using an
-// Arduino with a dedicated hardware serial port
-#define gpsPort Serial1  // Alternatively, use Serial1 on the Leonardo
-// Keep in mind, the SD library has max file name lengths of 8.3 - 8 char prefix,
-// and a 3 char suffix.
-// Our log files are called "logXX.csv, so "gpslog99.csv" is our max file.
-#define ARDUINO_USD_CS 10 // uSD card CS pin (pin 10 on SparkFun GPS Logger Shield)
-#define LOG_FILE_PREFIX "log" // Name of the log file.
-#define MAX_LOG_FILES 100 // Number of log files that can be made
-#define LOG_FILE_SUFFIX "csv" // Suffix of the log file
-#define LOG_COLUMN_COUNT 14
-static unsigned long lastPrint = 0; // Keep track of print time
-char logFileName[13]; // Char string to store the log file name
-// Data to be logged:
-char * log_col_names[LOG_COLUMN_COUNT] = {
-  "ms", "E(mm)", "N(mm)", "V(mm/s)","P(rad)","DP(rad/s)", "A(mm/s^2)","Heading(IMU)","roll(deg)", "pitch(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
-}; // log_col_names is printed at the top of the file.
-char * log_col_names_raw[LOG_COLUMN_COUNT] = {
-  "ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","Roll(deg)","pitch(deg)", "heading(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
-}; // log_col_names is printed at the top of the file.
 
+
+#define ARDUINO_USD_CS 10 // uSD card CS pin (pin 10 on SparkFun GPS Logger Shield)
+
+
+static unsigned long lastPrint = 0; // Keep track of print time
 bool oneshot = false;
 /////////////////////////////////
 // Motor       //
@@ -282,6 +269,7 @@ void interrupt(void) {
 bool interrupt3Busy = false;
 int interrupt3SecondTimer = 0;
 int movingTimer = 0;
+char *str;
 void interrupt_motor(void) {
 
   
@@ -317,8 +305,8 @@ void setup()
   {
     Serial.println("Error initializing SD card.");
   }
-  updateFileName(); // Each time we start, create a new file, increment the number
-  printHeader(); // Print a header at the top of the new file
+ // KCurrentState::getInstance()->updateFileName(); // Each time we start, create a new file, increment the number
+ // KCurrentState::getInstance()->printHeader(); // Print a header at the top of the new file
 
   // IMU initialization
   imu.settings.device.commInterface = IMU_MODE_I2C;
@@ -561,7 +549,8 @@ int updateIMU(){
   }
 }
 byte logRawData(){
-  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
+  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
+  
   if (logFile)
   {
     logFile.print(millis(), 5);
@@ -604,7 +593,7 @@ byte logRawData(){
 }
 
 byte logFarmbot(){
-  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
+  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
   if (logFile)
   {
     logFile.print(millis(), 5);
@@ -638,49 +627,6 @@ byte logFarmbot(){
 
   return 0; // If we failed to open the file, return fail
 }
-
-// printHeader() - prints our eight column names to the top of our log file
-void printHeader(){
-  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
-
-  if (logFile) // If the log file opened, print our column names to the file
-  {
-    int i = 0;
-    for (; i < LOG_COLUMN_COUNT; i++)
-    {
-      logFile.print(log_col_names[i]);
-      if (i < LOG_COLUMN_COUNT - 1) // If it's anything but the last column
-        logFile.print(','); // print a comma
-      else // If it's the last column
-        logFile.println(); // print a new line
-    }
-    logFile.close(); // close the file
-  }
-}
-
-// updateFileName() - Looks through the log files already present on a card,
-// and creates a new file with an incremented file index.
-void updateFileName(){
-  int i = 0;
-  for (; i < MAX_LOG_FILES; i++)
-  {
-    memset(logFileName, 0, strlen(logFileName)); // Clear logFileName string
-    // Set logFileName to "gpslogXX.csv":
-    sprintf(logFileName, "%s%d.%s", LOG_FILE_PREFIX, i, LOG_FILE_SUFFIX);
-    if (!SD.exists(logFileName)) // If a file doesn't exist
-    {
-      break; // Break out of this loop. We found our index
-    }
-    else // Otherwise:
-    {
-      Serial.print(logFileName);
-      Serial.println(" exists"); // Print a debug statement
-    }
-  }
-  Serial.print("File name: ");
-  Serial.println(logFileName); // Debug print the file name
-}
-
 
 void motorstop(void)                    //Stop
 {

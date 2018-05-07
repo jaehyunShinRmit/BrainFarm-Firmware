@@ -24,12 +24,12 @@ K16Handler::K16Handler()
 
 int K16Handler::execute(Command *command)
 {
-  if (LOGGING)
-  {
-    Serial.print("Start data Logging for Reinforced Learning \r\n");
-  }
-
+ 
+  Serial.print("K16 Start data Logging for Reinforced Learning \r\n");
+ 
   KCurrentState::getInstance()->setisReinforceddataLogging(true);
 
+  KCurrentState::getInstance()->updateFileName();
+  KCurrentState::getInstance()->printHeader();
   return 0;
 }

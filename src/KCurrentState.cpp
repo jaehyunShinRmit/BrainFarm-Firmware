@@ -583,3 +583,40 @@ bool KCurrentState::isEmergencyStop()
 {
   return emergencyStop;
 }
+
+// printHeader() - prints our eight column names to the top of our log file
+void KCurrentState::printHeader(){
+  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
+
+  if (logFile) // If the log file opened, print our column names to the file
+  {
+    int i = 0;
+    for (; i < LOG_COLUMN_COUNT; i++)
+    {
+      logFile.print(log_col_names[i]);
+      if (i < LOG_COLUMN_COUNT - 1) // If it's anything but the last column
+        logFile.print(','); // print a comma
+      else // If it's the last column
+        logFile.println(); // print a new line
+    }
+    logFile.close(); // close the file
+  }
+}
+
+// updateFileName() - Looks through the log files already present on a card,
+// and creates a new file with an incremented file index.
+void KCurrentState::updateFileName(){
+  int i = 0;
+  for (; i < MAX_LOG_FILES; i++)
+  {
+    memset(KCurrentState::getInstance()->logFileName, 0, strlen(KCurrentState::getInstance()->logFileName)); // Clear logFileName string
+    // Set logFileName
+    sprintf(KCurrentState::getInstance()->logFileName, "%s%d.%s", LOG_FILE_PREFIX, i, LOG_FILE_SUFFIX);
+    if (!SD.exists(KCurrentState::getInstance()->logFileName)) // If a file doesn't exist
+    {
+      break; // Break out of this loop. We found our index
+    }
+  }
+  Serial.print("File name: ");
+  Serial.println(KCurrentState::getInstance()->logFileName); // Debug print the file name
+}

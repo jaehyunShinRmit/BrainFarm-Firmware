@@ -24,14 +24,14 @@ K12Handler::K12Handler()
 
 int K12Handler::execute(Command *command)
 {
-  if (LOGGING)
-  {
-    Serial.print("Advance the robot and Data LOGGING start \r\n");
-  }
+  Serial.print("K12 Advance the robot and Data LOGGING start \r\n");
 
   KCurrentState::getInstance()->setisAdvencing(true);
   KCurrentState::getInstance()->setisRawdataLogging(true);
   KCurrentState::getInstance()->setMovingDistance(command->getMD());
-  Serial.println(command->getMD());
+  
+  KCurrentState::getInstance()->updateFileName();
+  KCurrentState::getInstance()->printHeader();
+
   return 0;
 }

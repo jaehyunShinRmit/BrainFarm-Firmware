@@ -72,7 +72,7 @@ public:
     bool isUpdatingR;
     bool isRawdataLogging;
     bool isReinforceddataLogging;
-    bool isAdvencing;
+    bool isMoving;
     unsigned int movingSpeed;
 
     double covR;
@@ -82,7 +82,7 @@ public:
 
     //Moving
     long movingDistance;
-    
+    long movingDirection;
     
     
 

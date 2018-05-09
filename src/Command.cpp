@@ -180,6 +180,18 @@ CommandCodeEnum Command::getGCodeEnum(char *code)
   {
     return K12;
   }
+  if (strcmp(code, "K13") == 0)
+  {
+    return K13;
+  }
+  if (strcmp(code, "K14") == 0)
+  {
+    return K14;
+  }
+  if (strcmp(code, "K15") == 0)
+  {
+    return K15;
+  }
   if (strcmp(code, "K16") == 0)
   {
     return K16;

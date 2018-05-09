@@ -20,6 +20,23 @@ unsigned int speed = 0;
 bool endStopState[3][2];
 long Q = 0;
 int lastError = 0;
+int index_file= 0;
+#define LOG_FILE_PREFIX "log" // Name of the log file.
+#define MAX_LOG_FILES 100 // Number of log files that can be made
+#define LOG_FILE_SUFFIX "csv" // Suffix of the log file
+#define LOG_COLUMN_COUNT 14
+
+
+
+char logFileName[13]; // Char string to store the log file name
+// Data to be logged:
+const char * log_col_names[LOG_COLUMN_COUNT] = {
+"ms", "E(mm)", "N(mm)", "V(mm/s)","P(rad)","DP(rad/s)", "A(mm/s^2)","Heading(IMU)","roll(deg)", "pitch(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+}; // log_col_names is printed at the top of the file.
+const char * log_col_names_raw[LOG_COLUMN_COUNT] = {
+"ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","Roll(deg)","pitch(deg)", "heading(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+}; // log_col_names is printed at the top of the file.
+
 
 KCurrentState *KCurrentState::getInstance()
 {
@@ -196,9 +213,9 @@ bool KCurrentState::getisReinforceddataLogging()
 {
   return BrainBotSensor.isReinforceddataLogging;
 }
-bool KCurrentState::getisAdvencing()
+bool KCurrentState::getisMoving()
 {
-  return BrainBotSensor.isAdvencing;
+  return BrainBotSensor.isMoving;
 }
 long *KCurrentState::getPoint()
 {
@@ -210,8 +227,14 @@ long KCurrentState::getMovingDistance()
 {
   return BrainBotSensor.movingDistance;
 }
-
-
+long KCurrentState::getMovingDirection()
+{
+  return BrainBotSensor.movingDirection;
+}
+char *KCurrentState::getlogFileName()
+{
+  return logFileName;
+}
 
 void KCurrentState::setAX(float newAX)
 {
@@ -377,9 +400,9 @@ void KCurrentState::setisReinforceddataLogging(bool newis)
 {
   BrainBotSensor.isReinforceddataLogging = newis;
 }
-void KCurrentState::setisAdvencing(bool newis)
+void KCurrentState::setisMoving(bool newis)
 {
-  BrainBotSensor.isAdvencing = newis;
+  BrainBotSensor.isMoving = newis;
 }
 void KCurrentState::setMovingSpeed(unsigned int newspeed)
 {
@@ -422,6 +445,10 @@ void KCurrentState::setMovingDistance(long movingDistance)
   BrainBotSensor.movingDistance = movingDistance;
 }
 
+void KCurrentState::setMovingDirection(long movingDirection)
+{
+  BrainBotSensor.movingDirection = movingDirection;
+}
 
 int KCurrentState::getLastError()
 {
@@ -586,7 +613,7 @@ bool KCurrentState::isEmergencyStop()
 
 // printHeader() - prints our eight column names to the top of our log file
 void KCurrentState::printHeader(){
-  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
+  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
 
   if (logFile) // If the log file opened, print our column names to the file
   {
@@ -606,17 +633,8 @@ void KCurrentState::printHeader(){
 // updateFileName() - Looks through the log files already present on a card,
 // and creates a new file with an incremented file index.
 void KCurrentState::updateFileName(){
-  int i = 0;
-  for (; i < MAX_LOG_FILES; i++)
-  {
-    memset(KCurrentState::getInstance()->logFileName, 0, strlen(KCurrentState::getInstance()->logFileName)); // Clear logFileName string
-    // Set logFileName
-    sprintf(KCurrentState::getInstance()->logFileName, "%s%d.%s", LOG_FILE_PREFIX, i, LOG_FILE_SUFFIX);
-    if (!SD.exists(KCurrentState::getInstance()->logFileName)) // If a file doesn't exist
-    {
-      break; // Break out of this loop. We found our index
-    }
-  }
+  sprintf(logFileName, "%s%d.%s", LOG_FILE_PREFIX, index_file, LOG_FILE_SUFFIX);
   Serial.print("File name: ");
-  Serial.println(KCurrentState::getInstance()->logFileName); // Debug print the file name
+  Serial.println(logFileName); // Debug print the file name
+  index_file++;
 }

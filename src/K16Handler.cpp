@@ -26,10 +26,15 @@ int K16Handler::execute(Command *command)
 {
  
   Serial.print("K16 Start data Logging for Reinforced Learning \r\n");
- 
+  
+  KCurrentState::getInstance()->updateFileName();
+  Serial.println("File name updated");
+  KCurrentState::getInstance()->printHeader();
+  Serial.println("Header printed");
+
+
   KCurrentState::getInstance()->setisReinforceddataLogging(true);
 
-  KCurrentState::getInstance()->updateFileName();
-  KCurrentState::getInstance()->printHeader();
+
   return 0;
 }

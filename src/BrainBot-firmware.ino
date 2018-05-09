@@ -130,7 +130,7 @@ bool oneshot = false;
 /////////////////////////////////
 const int PIN_LEFTRIGHT_JOYSTICK  = 6;     //M1 
 const int PIN_FORNTBACK_JOYSTICK  = 7;     //M2 
-const int Stop       = 140;
+const int Stop       = 130;
 int Positive         = 220;
 int Negative         = 70;
 int counter          = 0;
@@ -147,7 +147,9 @@ unsigned long lastLog = 0; // Global var to keep of last time we logged
 #define SENSORUPDATE_SPEED 50  // 50ms -> 20hz update rate
 #define MAXINDEXUIO 10*300     // 300s
 #define MAXINDEXURL 10*300     // 300s
-#define SAMPLING_RATE 100 // 100ms
+
+#define TIMER1_RATE 10000      // 10ms
+#define SAMPLING_RATE 10       // 100ms
 
 bool interruptBusy = false;
 int interruptSecondTimer = 0;
@@ -162,7 +164,7 @@ void interrupt(void) {
       interruptBusy = true;
       
       // triggered once per 10 ms
-      if (interruptSecondTimer >= SAMPLING_RATE/10) {
+      if (interruptSecondTimer >= SAMPLING_RATE) {
         interruptSecondTimer = 0;
         updateOriantation();
         Bot.latitude  = (double)tinyGPS.location.lat();
@@ -271,18 +273,32 @@ int interrupt3SecondTimer = 0;
 int movingTimer = 0;
 char *str;
 void interrupt_motor(void) {
-
-  
   if (interrupt3Busy == false) {
     interrupt3Busy = true;
-    if(KCurrentState::getInstance()->getisAdvencing() && movingTimer < KCurrentState::getInstance()->getMovingDistance()*1000){
+    if(KCurrentState::getInstance()->getisMoving() && movingTimer < KCurrentState::getInstance()->getMovingDistance()*1000){
          movingTimer++;
-         motoradvance();       //Move forward
+        switch(KCurrentState::getInstance()->getMovingDirection()){
+          case ADVANCE:
+            motoradvance();       //Move forward
+            break;
+          case RETREAT:
+            back_off();
+            break;
+          case LEFT:
+            turn_L();
+            break;
+          case RIGHT:
+            turn_R();
+            break;
+        }
     }
     else{
+        if (movingTimer > 0){
+          Serial.println("Robot has been stopped");
+        }
         movingTimer=0;
         motorstop();
-        KCurrentState::getInstance()->setisAdvencing(false);
+        KCurrentState::getInstance()->setisMoving(false);
         KCurrentState::getInstance()->setisRawdataLogging(false);
     }
       //back_off ()          //Move backward
@@ -305,8 +321,8 @@ void setup()
   {
     Serial.println("Error initializing SD card.");
   }
- // KCurrentState::getInstance()->updateFileName(); // Each time we start, create a new file, increment the number
- // KCurrentState::getInstance()->printHeader(); // Print a header at the top of the new file
+  // KCurrentState::getInstance()->updateFileName(); // Each time we start, create a new file, increment the number
+  // KCurrentState::getInstance()->printHeader(); // Print a header at the top of the new file
 
   // IMU initialization
   imu.settings.device.commInterface = IMU_MODE_I2C;
@@ -322,7 +338,7 @@ void setup()
   // Interrupt management code library written by Paul Stoffregen
   // The default time 100 micro seconds
   Timer1.attachInterrupt(interrupt);
-  Timer1.initialize(1000); //1 ms == 1000 microseconds
+  Timer1.initialize(10000); //10 ms == 10000 microseconds
   Timer1.start();
 
   Timer3.attachInterrupt(interrupt_motor);
@@ -549,11 +565,10 @@ int updateIMU(){
   }
 }
 byte logRawData(){
-  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
-  
+  File logFile = SD.open(KCurrentState::getInstance()->getlogFileName(), FILE_WRITE); // Open the log file
   if (logFile)
   {
-    logFile.print(millis(), 5);
+    logFile.print(micros(), 5);
     logFile.print(',');
     logFile.print(Bot.ax, 5);
     logFile.print(',');
@@ -593,10 +608,10 @@ byte logRawData(){
 }
 
 byte logFarmbot(){
-  File logFile = SD.open(KCurrentState::getInstance()->logFileName, FILE_WRITE); // Open the log file
+  File logFile = SD.open(KCurrentState::getInstance()->getlogFileName(), FILE_WRITE); // Open the log file
   if (logFile)
   {
-    logFile.print(millis(), 5);
+    logFile.print(micros(), 5);
     logFile.print(',');
     logFile.print(Bot.E, 5);
     logFile.print(',');

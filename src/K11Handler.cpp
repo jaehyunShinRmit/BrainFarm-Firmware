@@ -24,10 +24,11 @@ K11Handler::K11Handler()
 
 int K11Handler::execute(Command *command)
 {
-  Serial.print("K11 Start data Logging \r\n");
+  Serial.print("K11 Advance the robot \r\n");
   
-  KCurrentState::getInstance()->setisRawdataLogging(true);
-  KCurrentState::getInstance()->updateFileName();
-  KCurrentState::getInstance()->printHeader();
+
+  KCurrentState::getInstance()->setMovingDistance(command->getMD());
+  KCurrentState::getInstance()->setMovingDirection(ADVANCE);
+  KCurrentState::getInstance()->setisMoving(true);
   return 0;
 }

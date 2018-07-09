@@ -237,6 +237,10 @@ KCodeHandler *KCodeProcessor::getKCodeHandler(CommandCodeEnum codeEnum)
   {
     handler = K16Handler::getInstance();
   }
+  if (codeEnum == K17)
+  {
+    handler = K17Handler::getInstance();
+  }
   if (codeEnum == K51)
   {
     handler = K51Handler::getInstance();

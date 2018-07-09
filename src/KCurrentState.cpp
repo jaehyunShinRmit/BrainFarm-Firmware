@@ -34,7 +34,7 @@ const char * log_col_names[LOG_COLUMN_COUNT] = {
 "ms", "E(mm)", "N(mm)", "V(mm/s)","P(rad)","DP(rad/s)", "A(mm/s^2)","Heading(IMU)","roll(deg)", "pitch(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
 }; // log_col_names is printed at the top of the file.
 const char * log_col_names_raw[LOG_COLUMN_COUNT] = {
-"ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","Roll(deg)","pitch(deg)", "heading(deg)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
+"ms", "ax(m/s^2)", "ay(m/s^2)", "az(mm/s^2)","gx(rad/s)","gy(rad/s)", "gy(rad/s)","mx(nT)","my(nT)", "mz(nT)", "latitude" ,"longitude","Speed(GPS)","Heading(GPS)"
 }; // log_col_names is printed at the top of the file.
 
 
@@ -629,12 +629,46 @@ void KCurrentState::printHeader(){
     logFile.close(); // close the file
   }
 }
+void KCurrentState::printRawHeader(){
+  File logFile = SD.open(logFileName, FILE_WRITE); // Open the log file
 
+  if (logFile) // If the log file opened, print our column names to the file
+  {
+    int i = 0;
+    for (; i < LOG_COLUMN_COUNT; i++)
+    {
+      logFile.print(log_col_names_raw[i]);
+      if (i < LOG_COLUMN_COUNT - 1) // If it's anything but the last column
+        logFile.print(','); // print a comma
+      else // If it's the last column
+        logFile.println(); // print a new line
+    }
+    logFile.close(); // close the file
+  }
+}
 // updateFileName() - Looks through the log files already present on a card,
 // and creates a new file with an incremented file index.
 void KCurrentState::updateFileName(){
-  sprintf(logFileName, "%s%d.%s", LOG_FILE_PREFIX, index_file, LOG_FILE_SUFFIX);
+  
+  
+  int i = 0;
+  for (; i < MAX_LOG_FILES; i++)
+  {
+    memset(logFileName, 0, strlen(logFileName)); // Clear logFileName string
+    // Set logFileName to "gpslogXX.csv":
+    sprintf(logFileName, "%s%d.%s", LOG_FILE_PREFIX, i, LOG_FILE_SUFFIX);
+    if (!SD.exists(logFileName)) // If a file doesn't exist
+    {
+      break; // Break out of this loop. We found our index
+    }
+    else // Otherwise:
+    {
+      Serial.print(logFileName);
+      Serial.println(" exists"); // Print a debug statement
+    }
+  }
+  
   Serial.print("File name: ");
   Serial.println(logFileName); // Debug print the file name
-  index_file++;
+  index_file = i;
 }

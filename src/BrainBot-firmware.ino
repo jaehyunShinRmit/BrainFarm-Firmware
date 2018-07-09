@@ -79,10 +79,10 @@ int LeftRight1 = 0;  // variable to store the value coming from the sensor
 int LeftRight2 = 0;  // variable to store the value coming from the sensor
 int FrontBack1 = 0;  // variable to store the value coming from the sensor
 int FrontBack2 = 0;  // variable to store the value coming from the sensor
-int sensorPin8 = A8;    // select the input pin 
-int sensorPin9 = A9;    // select the input pin   
-int sensorPin10 = A10;    // select the input pin 
-int sensorPin11 = A11;    // select the input pin
+int sensorPin8 = A8;    // select the input pin LeftRight1
+int sensorPin9 = A9;    // select the input pin LeftRight2
+int sensorPin10 = A10;    // select the input pin FrontBack1
+int sensorPin11 = A11;    // select the input pin FrontBack2
 
 
 //////////////////
@@ -173,12 +173,15 @@ void interrupt(void) {
         // Logging Raw data 
         if(KCurrentState::getInstance()->getisRawdataLogging()){
           logRawData();
+          SendingRawData();
         }
         if(KCurrentState::getInstance()->getisReinforceddataLogging()){
           logRawData();
           LoggingForReinforceLearing(); // send serial message to Main program 
-          //SendingRawData();
         }
+        /* 25 May 2018 Jaehyun Shin
+        /  Decided to applying sensor fusion algorithm on Main program not in Arduino
+        /  since the Arduino has only 6-7 decimal digits of precision in float type calculation.
         // Running Kalman filtering - Absolute Optimization
         if (KCurrentState::getInstance()->getisKalmanFiltering()) {
           measurement[2] = (double)Bot.heading;
@@ -261,7 +264,7 @@ void interrupt(void) {
               ekf.updateR(KCurrentState::getInstance()->getRow(),KCurrentState::getInstance()->getCol(),KCurrentState::getInstance()->getCovR());
           }
         }
-          
+         */ 
         stateupdate();
       }
       interruptBusy = false;
@@ -299,7 +302,7 @@ void interrupt_motor(void) {
         movingTimer=0;
         motorstop();
         KCurrentState::getInstance()->setisMoving(false);
-        KCurrentState::getInstance()->setisRawdataLogging(false);
+        //KCurrentState::getInstance()->setisRawdataLogging(false);
     }
       //back_off ()          //Move backward
       //turn_L ()            //Turn Left
@@ -540,7 +543,7 @@ void InitialGPSUpdate(int n){
   Bot.initLon  = ((Bot.initLon * n) + (double)tinyGPS.location.lng()) / (n + 1);
 }
 
-int updateIMU(){
+byte updateIMU(){
   // Update the sensor values whenever new data is available
   if ( imu.gyroAvailable() )
   {
@@ -563,6 +566,7 @@ int updateIMU(){
     // mx, my, and mz variables with the most current data.
     imu.readMag();
   }
+  return 0;
 }
 byte logRawData(){
   File logFile = SD.open(KCurrentState::getInstance()->getlogFileName(), FILE_WRITE); // Open the log file
@@ -582,11 +586,11 @@ byte logRawData(){
     logFile.print(',');
     logFile.print(Bot.gz, 5);
     logFile.print(',');
-    logFile.print(Bot.roll_deg, 5);
+    logFile.print(Bot.mx, 5);
     logFile.print(',');
-    logFile.print(Bot.pitch_deg, 5);
+    logFile.print(Bot.my, 5);
     logFile.print(',');
-    logFile.print(Bot.heading_deg, 5);
+    logFile.print(Bot.mz, 5);
     logFile.print(',');
     logFile.print(tinyGPS.location.lat(), 6);
     logFile.print(',');
@@ -688,54 +692,74 @@ void stateupdate(void) {
 }
 
 void LoggingForReinforceLearing (void) {
-  LeftRight1 = analogRead(sensorPin8);
-  LeftRight2 = analogRead(sensorPin9);
-  FrontBack1 = analogRead(sensorPin10);
-  FrontBack2 = analogRead(sensorPin11);
-  LeftRight1 = map(LeftRight1, 0, 1023, 0, 255);
-  LeftRight2 = map(LeftRight2, 0, 1023, 0, 255);
+  FrontBack1 = analogRead(sensorPin8);
+  FrontBack2 = analogRead(sensorPin9);
+  LeftRight1 = analogRead(sensorPin10);
+  LeftRight2 = analogRead(sensorPin11);
   FrontBack1 = map(FrontBack1, 0, 1023, 0, 255);
   FrontBack2 = map(FrontBack2, 0, 1023, 0, 255);
+  LeftRight1 = map(LeftRight1, 0, 1023, 0, 255);
+  LeftRight2 = map(LeftRight2, 0, 1023, 0, 255);
   
-  Serial.print(LeftRight1);
-  Serial.print(',');
-  Serial.print(LeftRight2);
-  Serial.print(',');
   Serial.print(FrontBack1);
   Serial.print(',');
   Serial.print(FrontBack2);
   Serial.print(',');
-  Serial.print(Bot.roll);
+  Serial.print(LeftRight1);
   Serial.print(',');
-  Serial.print(Bot.pitch);
+  Serial.print(LeftRight2);
   Serial.print(',');
-  Serial.println(Bot.heading);
+  Serial.print(Bot.ax,5);
+  Serial.print(',');
+  Serial.print(Bot.ay,5);
+  Serial.print(',');
+  Serial.print(Bot.az,5);
+  Serial.print(',');
+  Serial.print(Bot.gx,5);
+  Serial.print(',');
+  Serial.print(Bot.gy,5);
+  Serial.print(',');
+  Serial.print(Bot.gz,5);
+  Serial.print(',');
+  Serial.print(Bot.mx,5);
+  Serial.print(',');
+  Serial.print(Bot.my,5);
+  Serial.print(',');
+  Serial.print(Bot.mz,5);
+  Serial.print(',');
+  Serial.print(Bot.latitude, 6);
+  Serial.print(',');
+  Serial.print(Bot.longitude, 6);
+  Serial.print(',');
+  Serial.print(tinyGPS.altitude.meters());
+  Serial.print(',');
+  Serial.println(tinyGPS.course.deg());
 } 
 
 void SendingRawData(void){
-  Serial.print(Bot.ax);
+  Serial.print(Bot.ax,5);
   Serial.print(',');
-  Serial.print(Bot.ay);
+  Serial.print(Bot.ay,5);
   Serial.print(',');
-  Serial.print(Bot.az);
+  Serial.print(Bot.az,5);
   Serial.print(',');
-  Serial.print(Bot.gx);
+  Serial.print(Bot.gx,5);
   Serial.print(',');
-  Serial.print(Bot.gy);
+  Serial.print(Bot.gy,5);
   Serial.print(',');
-  Serial.print(Bot.gz);
+  Serial.print(Bot.gz,5);
   Serial.print(',');
-  Serial.print(Bot.roll);
+  Serial.print(Bot.mx,5);
   Serial.print(',');
-  Serial.print(Bot.pitch);
+  Serial.print(Bot.my,5);
   Serial.print(',');
-  Serial.print(Bot.heading);
+  Serial.print(Bot.mz,5);
   Serial.print(',');
-  Serial.print(tinyGPS.location.lat());
+  Serial.print(tinyGPS.location.lat(), 6);
   Serial.print(',');
-  Serial.print(tinyGPS.location.lng());
+  Serial.print(tinyGPS.location.lng(), 6);
   Serial.print(',');
-  Serial.print(tinyGPS.speed.mph());
+  Serial.print(tinyGPS.altitude.meters());
   Serial.print(',');
   Serial.println(tinyGPS.course.deg());
 }

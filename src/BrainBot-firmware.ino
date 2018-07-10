@@ -733,6 +733,8 @@ void LoggingForReinforceLearing (void) {
   Serial.print(',');
   Serial.print(tinyGPS.altitude.meters());
   Serial.print(',');
+  Serial.print(Bot.heading);
+  Serial.print(',');
   Serial.println(tinyGPS.course.deg());
 } 
 

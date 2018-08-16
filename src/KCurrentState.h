@@ -8,6 +8,7 @@
 #ifndef KCURRENTSTATE_H_
 #define KCURRENTSTATE_H_
 #include "Arduino.h"
+#include <SD.h>
 #include "pins.h"
 #define ADVANCE 0 
 #define RETREAT 1
@@ -21,6 +22,7 @@ public:
 
   //SD card
   void printHeader();
+  void printRawHeader();
   void updateFileName();
   // Keep in mind, the SD library has max file name lengths of 8.3 - 8 char prefix,
   // and a 3 char suffix.
